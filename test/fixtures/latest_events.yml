@@ -1,9 +1,9 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  step: one
-  step_approver: one
+  person: one
+  event: one
 
 two:
-  step: two
-  step_approver: two
+  person: two
+  event: two

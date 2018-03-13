@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  approver: one
-  approve_history: one
+  approve_class: 
+  comment: MyText
+  person: one
 
 two:
-  approver: two
-  approve_history: two
+  approve_class: 
+  comment: MyText
+  person: two

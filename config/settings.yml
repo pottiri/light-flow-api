@@ -1,0 +1,24 @@
+step_num:
+  create: 0
+  archive: 100
+step_class:
+  create: 10
+  approve: 20
+  confirm: 30
+  archive: 90
+  
+operator:
+  and: 10
+  or: 20
+
+event_class:
+  create: 100
+  application: 110
+  approve_request: 200
+  approve: 210
+  reject: 220
+  skip: 230
+  confirm_request: 300
+  confirm: 310
+  skip_backward: 800
+  archive: 900 
