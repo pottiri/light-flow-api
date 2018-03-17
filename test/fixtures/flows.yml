@@ -3,12 +3,11 @@
 flow_draft:
     creator_id: 1
 
-flow_approve_and_active:
+flow_active_approve_and:
     creator_id: 1
 
-flow_approve_or_active:
+flow_active_approve_or:
     creator_id: 1
 
 flow_finish:
     creator_id: 1
-    

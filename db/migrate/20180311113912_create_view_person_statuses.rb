@@ -1,4 +1,4 @@
-class ViewPersonStatuses < ActiveRecord::Migration[5.1]
+class CreateViewPersonStatuses < ActiveRecord::Migration[5.1]
   def up
     execute <<-SQL
       CREATE OR REPLACE VIEW view_person_statuses AS

@@ -1,4 +1,4 @@
-class ViewLatestStepHistories < ActiveRecord::Migration[5.1]
+class CreateViewLatestStepHistories < ActiveRecord::Migration[5.1]
   def up
     execute <<-SQL
       CREATE OR REPLACE VIEW view_latest_step_histories AS

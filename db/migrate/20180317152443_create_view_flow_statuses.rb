@@ -1,4 +1,4 @@
-class ViewFlowStatsues < ActiveRecord::Migration[5.1]
+class CreateViewFlowStatuses < ActiveRecord::Migration[5.1]
   def up
     execute <<-SQL
       CREATE OR REPLACE VIEW view_flow_statuses AS
