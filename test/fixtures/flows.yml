@@ -1,7 +1,14 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  meta: MyText
+flow_draft:
+    creator_id: 1
 
-two:
-  meta: MyText
+flow_approve_and_active:
+    creator_id: 1
+
+flow_approve_or_active:
+    creator_id: 1
+
+flow_finish:
+    creator_id: 1
+    

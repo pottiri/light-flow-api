@@ -3,21 +3,25 @@ class ViewPersonStatuses < ActiveRecord::Migration[5.1]
     execute <<-SQL
       CREATE OR REPLACE VIEW view_person_statuses AS
       SELECT
-	      p.*,
+	    p.*,
         vle.event_class,
-	      vle.comment,
-        (vle.event_class IS NULL OR vle.event_class = 800) as none_flag,
+	    vle.comment,
+        (vle.event_class IS NULL
+         OR vle.event_class = 800
+        ) as none_flag,
         (vle.event_class = 100
          OR vle.event_class = 200
          OR vle.event_class = 300
          OR vle.event_class = 900
-        ) as running_flag,
+        ) as active_flag,
         (vle.event_class = 110
          OR vle.event_class = 210
-         OR vle.event_class = 230
+         OR vle.event_class = 240
          OR vle.event_class = 310
-        ) as approved_flag,
-        (vle.event_class = 220) as rejected_flag
+        ) as finish_flag,
+        (vle.event_class = 220) as reject_flag,
+        (vle.event_class = 120
+         OR vle.event_class = 230) as rejected_flag
       FROM people p
 	    LEFT JOIN view_latest_events vle ON p.id = vle.person_id
     SQL

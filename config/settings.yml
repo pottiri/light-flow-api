@@ -14,10 +14,12 @@ operator:
 event_class:
   create: 100
   application: 110
+  rejected: 120
   approve_request: 200
   approve: 210
   reject: 220
-  skip: 230
+  rejected: 230
+  skip: 240
   confirm_request: 300
   confirm: 310
   skip_backward: 800

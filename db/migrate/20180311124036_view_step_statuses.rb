@@ -9,12 +9,15 @@ class ViewStepStatuses < ActiveRecord::Migration[5.1]
         s.step_class,
         vlsh.operator,
         (CASE
-	        WHEN (s.step_class IN (10, 20, 90)
-	              AND 0 < SUM(vps.running_flag)) THEN 'running'
-	        WHEN (s.step_class IN (30)) THEN 'approved'
-          WHEN (0 < SUM(vps.rejected_flag)) THEN 'none'
-	        WHEN (vlsh.operator = 10 AND COUNT(1) <= SUM(vps.approved_flag)) THEN 'approved'
-	        WHEN (vlsh.operator = 20 AND  0 < SUM(vps.approved_flag)) THEN 'approved'
+	        WHEN (s.step_class IN (10, 20, 90) AND 0 < SUM(vps.active_flag)) THEN 'active'
+	        WHEN (s.step_class = 10 AND COUNT(1) <= SUM(vps.finish_flag)) THEN 'finish'
+          WHEN (s.step_class = 10 AND 0 < SUM(vps.rejected_flag)) THEN 'rejected'
+          WHEN (s.step_class = 20 AND 0 < SUM(vps.reject_flag)) THEN 'reject'
+          WHEN (s.step_class = 20 AND 0 < SUM(vps.rejected_flag)) THEN 'active'
+	        WHEN (s.step_class = 20 AND vlsh.operator = 10 AND COUNT(1) <= SUM(vps.finish_flag)) THEN 'finish'
+	        WHEN (s.step_class = 20 AND vlsh.operator = 20 AND  0 < SUM(vps.finish_flag)) THEN 'finish'
+	        WHEN (s.step_class = 30 AND 0 < SUM(vps.active_flag)) THEN 'finish'
+	        WHEN (s.step_class = 30 AND 0 < SUM(vps.finish_flag)) THEN 'finish'
 	        ELSE 'none'
         END) as step_status
       FROM steps s

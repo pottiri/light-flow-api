@@ -1,9 +1,2 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  person_id: MyString
-  step_history: one
-
-two:
-  person_id: MyString
-  step_history: two
