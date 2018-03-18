@@ -9,7 +9,7 @@ class CreateViewFlowStatuses < ActiveRecord::Migration[5.1]
          WHEN (vss.step_class = 10 AND vss.step_status = 'rejected') THEN  'rejected'
          WHEN (vss.step_class = 90) THEN  'archive'
          ELSE 'active'
-       END) as status ,
+       END) as flow_status ,
         vss.step_num,
         vss.step_class,
         vss.step_status

@@ -1,0 +1,2 @@
+class ViewPersonStatus < ApplicationRecord
+end

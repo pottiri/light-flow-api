@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(version: 20180311125834) do
   end
 
   create_table "flows", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer "creator_id"
+    t.integer "creator_key"
     t.json "meta"
     t.datetime "create_datetime"
     t.datetime "application_datetime"
@@ -42,31 +42,31 @@ ActiveRecord::Schema.define(version: 20180311125834) do
     t.index ["person_id"], name: "index_latest_events_on_person_id"
   end
 
-  create_table "latest_step_histories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "latest_step_events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.bigint "step_id", null: false
-    t.bigint "step_history_id", null: false
+    t.bigint "step_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["step_history_id"], name: "index_latest_step_histories_on_step_history_id"
-    t.index ["step_id", "step_history_id"], name: "index_latest_step_histories_on_step_id_and_step_history_id", unique: true
-    t.index ["step_id"], name: "index_latest_step_histories_on_step_id"
+    t.index ["step_event_id"], name: "index_latest_step_events_on_step_event_id"
+    t.index ["step_id", "step_event_id"], name: "index_latest_step_events_on_step_id_and_step_event_id", unique: true
+    t.index ["step_id"], name: "index_latest_step_events_on_step_id"
   end
 
   create_table "people", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "person_id", null: false
-    t.bigint "step_history_id", null: false
+    t.bigint "step_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["step_history_id", "person_id"], name: "index_people_on_step_history_id_and_person_id", unique: true
-    t.index ["step_history_id"], name: "index_people_on_step_history_id"
+    t.index ["step_event_id", "person_id"], name: "index_people_on_step_event_id_and_person_id", unique: true
+    t.index ["step_event_id"], name: "index_people_on_step_event_id"
   end
 
-  create_table "step_histories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "step_events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "operator", null: false, comment: "演算子(10:AND,20:OR)"
     t.bigint "step_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["step_id"], name: "index_step_histories_on_step_id"
+    t.index ["step_id"], name: "index_step_events_on_step_id"
   end
 
   create_table "steps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -83,9 +83,9 @@ ActiveRecord::Schema.define(version: 20180311125834) do
   add_foreign_key "events", "people", on_delete: :cascade
   add_foreign_key "latest_events", "events", on_delete: :cascade
   add_foreign_key "latest_events", "people", on_delete: :cascade
-  add_foreign_key "latest_step_histories", "step_histories", on_delete: :cascade
-  add_foreign_key "latest_step_histories", "steps", on_delete: :cascade
-  add_foreign_key "people", "step_histories", on_delete: :cascade
-  add_foreign_key "step_histories", "steps", on_delete: :cascade
+  add_foreign_key "latest_step_events", "step_events", on_delete: :cascade
+  add_foreign_key "latest_step_events", "steps", on_delete: :cascade
+  add_foreign_key "people", "step_events", on_delete: :cascade
+  add_foreign_key "step_events", "steps", on_delete: :cascade
   add_foreign_key "steps", "flows", on_delete: :cascade
 end

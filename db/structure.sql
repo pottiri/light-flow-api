@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `flows`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `flows` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `creator_id` int(11) DEFAULT NULL,
+  `creator_key` int(11) DEFAULT NULL,
   `meta` json DEFAULT NULL,
   `create_datetime` datetime DEFAULT NULL,
   `application_datetime` datetime DEFAULT NULL,
@@ -67,20 +67,20 @@ CREATE TABLE `latest_events` (
   CONSTRAINT `fk_rails_f492be0340` FOREIGN KEY (`person_id`) REFERENCES `people` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `latest_step_histories`;
+DROP TABLE IF EXISTS `latest_step_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `latest_step_histories` (
+CREATE TABLE `latest_step_events` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `step_id` bigint(20) NOT NULL,
-  `step_history_id` bigint(20) NOT NULL,
+  `step_event_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_latest_step_histories_on_step_id` (`step_id`),
-  KEY `index_latest_step_histories_on_step_history_id` (`step_history_id`),
-  CONSTRAINT `fk_rails_3fe78cb76c` FOREIGN KEY (`step_history_id`) REFERENCES `step_histories` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_rails_d6407819de` FOREIGN KEY (`step_id`) REFERENCES `steps` (`id`) ON DELETE CASCADE
+  UNIQUE KEY `index_latest_step_events_on_step_id` (`step_id`),
+  KEY `index_latest_step_events_on_step_event_id` (`step_event_id`),
+  CONSTRAINT `fk_rails_4ad0657f28` FOREIGN KEY (`step_id`) REFERENCES `steps` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_9c95000d4d` FOREIGN KEY (`step_event_id`) REFERENCES `step_events` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `people`;
@@ -88,14 +88,14 @@ DROP TABLE IF EXISTS `people`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `people` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `person_id` varchar(255) NOT NULL,
-  `step_history_id` bigint(20) NOT NULL,
+  `person_key` varchar(255) NOT NULL,
+  `step_event_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_people_on_step_history_id_and_person_id` (`step_history_id`,`person_id`),
-  KEY `index_people_on_step_history_id` (`step_history_id`),
-  CONSTRAINT `fk_rails_9f02094812` FOREIGN KEY (`step_history_id`) REFERENCES `step_histories` (`id`) ON DELETE CASCADE
+  UNIQUE KEY `index_people_on_step_event_id_and_person_key` (`step_event_id`,`person_key`),
+  KEY `index_people_on_step_event_id` (`step_event_id`),
+  CONSTRAINT `fk_rails_3ae00d3444` FOREIGN KEY (`step_event_id`) REFERENCES `step_events` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `schema_migrations`;
@@ -106,18 +106,18 @@ CREATE TABLE `schema_migrations` (
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `step_histories`;
+DROP TABLE IF EXISTS `step_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `step_histories` (
+CREATE TABLE `step_events` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `operator` int(11) NOT NULL COMMENT '演算子(10:AND,20:OR)',
   `step_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_step_histories_on_step_id` (`step_id`),
-  CONSTRAINT `fk_rails_bd6c7ef37b` FOREIGN KEY (`step_id`) REFERENCES `steps` (`id`) ON DELETE CASCADE
+  KEY `index_step_events_on_step_id` (`step_id`),
+  CONSTRAINT `fk_rails_2f0649da98` FOREIGN KEY (`step_id`) REFERENCES `steps` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `steps`;
@@ -143,14 +143,14 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `view_flow_statuses` (
   `id` tinyint NOT NULL,
-  `creator_id` tinyint NOT NULL,
+  `creator_key` tinyint NOT NULL,
   `meta` tinyint NOT NULL,
   `create_datetime` tinyint NOT NULL,
   `application_datetime` tinyint NOT NULL,
   `archive_datetime` tinyint NOT NULL,
   `created_at` tinyint NOT NULL,
   `updated_at` tinyint NOT NULL,
-  `status` tinyint NOT NULL,
+  `flow_status` tinyint NOT NULL,
   `step_num` tinyint NOT NULL,
   `step_class` tinyint NOT NULL,
   `step_status` tinyint NOT NULL
@@ -169,11 +169,11 @@ SET character_set_client = utf8;
   `updated_at` tinyint NOT NULL
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
-DROP TABLE IF EXISTS `view_latest_step_histories`;
-/*!50001 DROP VIEW IF EXISTS `view_latest_step_histories`*/;
+DROP TABLE IF EXISTS `view_latest_step_events`;
+/*!50001 DROP VIEW IF EXISTS `view_latest_step_events`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `view_latest_step_histories` (
+/*!50001 CREATE TABLE `view_latest_step_events` (
   `id` tinyint NOT NULL,
   `operator` tinyint NOT NULL,
   `step_id` tinyint NOT NULL,
@@ -187,8 +187,8 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `view_person_statuses` (
   `id` tinyint NOT NULL,
-  `person_id` tinyint NOT NULL,
-  `step_history_id` tinyint NOT NULL,
+  `person_key` tinyint NOT NULL,
+  `step_event_id` tinyint NOT NULL,
   `created_at` tinyint NOT NULL,
   `updated_at` tinyint NOT NULL,
   `event_class` tinyint NOT NULL,
@@ -197,7 +197,8 @@ SET character_set_client = utf8;
   `active_flag` tinyint NOT NULL,
   `finish_flag` tinyint NOT NULL,
   `reject_flag` tinyint NOT NULL,
-  `rejected_flag` tinyint NOT NULL
+  `rejected_flag` tinyint NOT NULL,
+  `person_status` tinyint NOT NULL
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 DROP TABLE IF EXISTS `view_step_statuses`;
@@ -209,7 +210,7 @@ SET character_set_client = utf8;
   `flow_id` tinyint NOT NULL,
   `step_num` tinyint NOT NULL,
   `step_class` tinyint NOT NULL,
-  `step_history_id` tinyint NOT NULL,
+  `step_event_id` tinyint NOT NULL,
   `operator` tinyint NOT NULL,
   `step_status` tinyint NOT NULL
 ) ENGINE=MyISAM */;
@@ -224,7 +225,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_flow_statuses` AS select `f`.`id` AS `id`,`f`.`creator_id` AS `creator_id`,`f`.`meta` AS `meta`,`f`.`create_datetime` AS `create_datetime`,`f`.`application_datetime` AS `application_datetime`,`f`.`archive_datetime` AS `archive_datetime`,`f`.`created_at` AS `created_at`,`f`.`updated_at` AS `updated_at`,(case when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'active')) then 'draft' when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'rejected')) then 'rejected' when (`vss`.`step_class` = 90) then 'archive' else 'active' end) AS `status`,`vss`.`step_num` AS `step_num`,`vss`.`step_class` AS `step_class`,`vss`.`step_status` AS `step_status` from (`flows` `f` join `view_step_statuses` `vss` on(((`f`.`id` = `vss`.`flow_id`) and ((`vss`.`step_status` = 'rejected') or (`vss`.`step_status` = 'active'))))) */;
+/*!50001 VIEW `view_flow_statuses` AS select `f`.`id` AS `id`,`f`.`creator_key` AS `creator_key`,`f`.`meta` AS `meta`,`f`.`create_datetime` AS `create_datetime`,`f`.`application_datetime` AS `application_datetime`,`f`.`archive_datetime` AS `archive_datetime`,`f`.`created_at` AS `created_at`,`f`.`updated_at` AS `updated_at`,(case when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'active')) then 'draft' when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'rejected')) then 'rejected' when (`vss`.`step_class` = 90) then 'archive' else 'active' end) AS `flow_status`,`vss`.`step_num` AS `step_num`,`vss`.`step_class` AS `step_class`,`vss`.`step_status` AS `step_status` from (`flows` `f` join `view_step_statuses` `vss` on(((`f`.`id` = `vss`.`flow_id`) and ((`vss`.`step_status` = 'rejected') or (`vss`.`step_status` = 'active'))))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -242,8 +243,8 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
-/*!50001 DROP TABLE IF EXISTS `view_latest_step_histories`*/;
-/*!50001 DROP VIEW IF EXISTS `view_latest_step_histories`*/;
+/*!50001 DROP TABLE IF EXISTS `view_latest_step_events`*/;
+/*!50001 DROP VIEW IF EXISTS `view_latest_step_events`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
@@ -252,7 +253,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_latest_step_histories` AS select `sh`.`id` AS `id`,`sh`.`operator` AS `operator`,`sh`.`step_id` AS `step_id`,`sh`.`created_at` AS `created_at`,`sh`.`updated_at` AS `updated_at` from (`latest_step_histories` `lsh` join `step_histories` `sh` on((`lsh`.`step_history_id` = `sh`.`id`))) */;
+/*!50001 VIEW `view_latest_step_events` AS select `sh`.`id` AS `id`,`sh`.`operator` AS `operator`,`sh`.`step_id` AS `step_id`,`sh`.`created_at` AS `created_at`,`sh`.`updated_at` AS `updated_at` from (`latest_step_events` `lsh` join `step_events` `sh` on((`lsh`.`step_event_id` = `sh`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -266,7 +267,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_person_statuses` AS select `p`.`id` AS `id`,`p`.`person_id` AS `person_id`,`p`.`step_history_id` AS `step_history_id`,`p`.`created_at` AS `created_at`,`p`.`updated_at` AS `updated_at`,`vle`.`event_class` AS `event_class`,`vle`.`comment` AS `comment`,(isnull(`vle`.`event_class`) or (`vle`.`event_class` = 800)) AS `none_flag`,((`vle`.`event_class` = 100) or (`vle`.`event_class` = 200) or (`vle`.`event_class` = 300) or (`vle`.`event_class` = 900)) AS `active_flag`,((`vle`.`event_class` = 110) or (`vle`.`event_class` = 210) or (`vle`.`event_class` = 240) or (`vle`.`event_class` = 310)) AS `finish_flag`,(`vle`.`event_class` = 220) AS `reject_flag`,((`vle`.`event_class` = 120) or (`vle`.`event_class` = 230)) AS `rejected_flag` from (`people` `p` left join `view_latest_events` `vle` on((`p`.`id` = `vle`.`person_id`))) */;
+/*!50001 VIEW `view_person_statuses` AS select `p`.`id` AS `id`,`p`.`person_key` AS `person_key`,`p`.`step_event_id` AS `step_event_id`,`p`.`created_at` AS `created_at`,`p`.`updated_at` AS `updated_at`,`vle`.`event_class` AS `event_class`,`vle`.`comment` AS `comment`,(isnull(`vle`.`event_class`) or (`vle`.`event_class` = 800)) AS `none_flag`,((`vle`.`event_class` = 100) or (`vle`.`event_class` = 200) or (`vle`.`event_class` = 300) or (`vle`.`event_class` = 900)) AS `active_flag`,((`vle`.`event_class` = 110) or (`vle`.`event_class` = 210) or (`vle`.`event_class` = 240) or (`vle`.`event_class` = 310)) AS `finish_flag`,(`vle`.`event_class` = 220) AS `reject_flag`,((`vle`.`event_class` = 120) or (`vle`.`event_class` = 230)) AS `rejected_flag`,(case when (isnull(`vle`.`event_class`) or (`vle`.`event_class` = 800)) then 'none' when ((`vle`.`event_class` = 100) or (`vle`.`event_class` = 200) or (`vle`.`event_class` = 300) or (`vle`.`event_class` = 900)) then 'active' when ((`vle`.`event_class` = 110) or (`vle`.`event_class` = 210) or (`vle`.`event_class` = 240) or (`vle`.`event_class` = 310)) then 'finish' when (`vle`.`event_class` = 220) then 'none' when ((`vle`.`event_class` = 120) or (`vle`.`event_class` = 230)) then 'active' else 'none' end) AS `person_status` from (`people` `p` left join `view_latest_events` `vle` on((`p`.`id` = `vle`.`person_id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -280,7 +281,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_step_statuses` AS select `s`.`id` AS `id`,`s`.`flow_id` AS `flow_id`,`s`.`step_num` AS `step_num`,`s`.`step_class` AS `step_class`,`vlsh`.`id` AS `step_history_id`,`vlsh`.`operator` AS `operator`,(case when ((`s`.`step_class` in (10,20,90)) and (0 < sum(`vps`.`active_flag`))) then 'active' when ((`s`.`step_class` = 10) and (count(1) <= sum(`vps`.`finish_flag`))) then 'finish' when ((`s`.`step_class` = 10) and (0 < sum(`vps`.`rejected_flag`))) then 'rejected' when ((`s`.`step_class` = 20) and (0 < sum(`vps`.`reject_flag`))) then 'reject' when ((`s`.`step_class` = 20) and (0 < sum(`vps`.`rejected_flag`))) then 'active' when ((`s`.`step_class` = 20) and (`vlsh`.`operator` = 10) and (count(1) <= sum(`vps`.`finish_flag`))) then 'finish' when ((`s`.`step_class` = 20) and (`vlsh`.`operator` = 20) and (0 < sum(`vps`.`finish_flag`))) then 'finish' when ((`s`.`step_class` = 30) and (0 < sum(`vps`.`active_flag`))) then 'finish' when ((`s`.`step_class` = 30) and (0 < sum(`vps`.`finish_flag`))) then 'finish' else 'none' end) AS `step_status` from ((`steps` `s` join `view_latest_step_histories` `vlsh` on((`s`.`id` = `vlsh`.`step_id`))) join `view_person_statuses` `vps` on((`vlsh`.`id` = `vps`.`step_history_id`))) group by `s`.`id`,`s`.`step_num`,`vlsh`.`id`,`vlsh`.`operator` */;
+/*!50001 VIEW `view_step_statuses` AS select `s`.`id` AS `id`,`s`.`flow_id` AS `flow_id`,`s`.`step_num` AS `step_num`,`s`.`step_class` AS `step_class`,`vlsh`.`id` AS `step_event_id`,`vlsh`.`operator` AS `operator`,(case when ((`s`.`step_class` in (10,20,90)) and (0 < sum(`vps`.`active_flag`))) then 'active' when ((`s`.`step_class` = 10) and (count(1) <= sum(`vps`.`finish_flag`))) then 'finish' when ((`s`.`step_class` = 10) and (0 < sum(`vps`.`rejected_flag`))) then 'rejected' when ((`s`.`step_class` = 20) and (0 < sum(`vps`.`reject_flag`))) then 'reject' when ((`s`.`step_class` = 20) and (0 < sum(`vps`.`rejected_flag`))) then 'active' when ((`s`.`step_class` = 20) and (`vlsh`.`operator` = 10) and (count(1) <= sum(`vps`.`finish_flag`))) then 'finish' when ((`s`.`step_class` = 20) and (`vlsh`.`operator` = 20) and (0 < sum(`vps`.`finish_flag`))) then 'finish' when ((`s`.`step_class` = 30) and (0 < sum(`vps`.`active_flag`))) then 'finish' when ((`s`.`step_class` = 30) and (0 < sum(`vps`.`finish_flag`))) then 'finish' else 'none' end) AS `step_status` from ((`steps` `s` join `view_latest_step_events` `vlsh` on((`s`.`id` = `vlsh`.`step_id`))) join `view_person_statuses` `vps` on((`vlsh`.`id` = `vps`.`step_event_id`))) group by `s`.`id`,`s`.`step_num`,`vlsh`.`id`,`vlsh`.`operator` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

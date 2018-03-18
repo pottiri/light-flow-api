@@ -7,7 +7,7 @@ class CreateViewStepStatuses < ActiveRecord::Migration[5.1]
         s.flow_id,
         s.step_num,
         s.step_class,
-        vlsh.id as step_history_id,
+        vlsh.id as step_event_id,
         vlsh.operator,
         (CASE
 	        WHEN (s.step_class IN (10, 20, 90) AND 0 < SUM(vps.active_flag)) THEN 'active'
@@ -22,8 +22,8 @@ class CreateViewStepStatuses < ActiveRecord::Migration[5.1]
 	        ELSE 'none'
         END) as step_status
       FROM steps s
-      INNER JOIN view_latest_step_histories vlsh ON s.id = vlsh.step_id
-      INNER JOIN view_person_statuses vps ON vlsh.id = vps.step_history_id
+      INNER JOIN view_latest_step_events vlsh ON s.id = vlsh.step_id
+      INNER JOIN view_person_statuses vps ON vlsh.id = vps.step_event_id
       GROUP BY s.id, s.step_num, vlsh.id, vlsh.operator
     SQL
   end

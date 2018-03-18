@@ -3,9 +3,8 @@ class FlowsController < ApplicationController
 
   # GET /flows
   def index
-    @flows = Flow.all
-
-    render json: @flows
+    service = FlowSearchService.new()
+    render json: service.search(params)
   end
 
   # GET /flows/1

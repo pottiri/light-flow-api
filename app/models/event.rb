@@ -13,7 +13,7 @@ class Event < ApplicationRecord
       return
     end
 
-    flow = Flow.find(person.step_history.step.flow.id)
+    flow = Flow.find(person.step_event.step.flow.id)
     case event_class
     when Settings.event_class.create then
       flow.create_datetime = created_at

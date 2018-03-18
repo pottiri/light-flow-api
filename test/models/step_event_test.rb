@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class StepHistoryTest < ActiveSupport::TestCase
+class StepEventTest < ActiveSupport::TestCase
   setup do
     create_test_flow
   end
@@ -9,7 +9,7 @@ class StepHistoryTest < ActiveSupport::TestCase
     flow = ViewFlowStatus.includes(:view_step_statuses).where(id: flows(:flow_draft).id).first
     Rails.logger.debug(flow.view_step_statuses[0].to_yaml)
     step_id = flow.view_step_statuses[0].id
-    step_history_id = StepHistory.create(operator: Settings.operator.and, step_id: step_id)
-    assert_equal 1, LatestStepHistory.where(step_id: step_id, step_history_id: step_history_id).count
+    step_event_id = StepEvent.create(operator: Settings.operator.and, step_id: step_id)
+    assert_equal 1, LatestStepEvent.where(step_id: step_id, step_event_id: step_event_id).count
   end
 end
