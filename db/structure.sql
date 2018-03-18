@@ -20,22 +20,6 @@ CREATE TABLE `ar_internal_metadata` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `events`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `events` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `event_class` int(11) NOT NULL COMMENT '承認イベント',
-  `comment` text,
-  `person_id` bigint(20) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_events_on_person_id` (`person_id`),
-  KEY `index_events_on_person_id_and_event_class` (`person_id`,`event_class`),
-  CONSTRAINT `fk_rails_0dd58ac981` FOREIGN KEY (`person_id`) REFERENCES `people` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `flows`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -51,20 +35,20 @@ CREATE TABLE `flows` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `latest_events`;
+DROP TABLE IF EXISTS `latest_person_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `latest_events` (
+CREATE TABLE `latest_person_events` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `person_id` bigint(20) NOT NULL,
-  `event_id` bigint(20) NOT NULL,
+  `person_event_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_latest_events_on_person_id` (`person_id`),
-  KEY `index_latest_events_on_event_id` (`event_id`),
-  CONSTRAINT `fk_rails_6d98f5c276` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_rails_f492be0340` FOREIGN KEY (`person_id`) REFERENCES `people` (`id`) ON DELETE CASCADE
+  UNIQUE KEY `index_latest_person_events_on_person_id` (`person_id`),
+  KEY `index_latest_person_events_on_person_event_id` (`person_event_id`),
+  CONSTRAINT `fk_rails_4ae662d6a0` FOREIGN KEY (`person_event_id`) REFERENCES `person_events` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_cf7aca8335` FOREIGN KEY (`person_id`) REFERENCES `people` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `latest_step_events`;
@@ -96,6 +80,22 @@ CREATE TABLE `people` (
   UNIQUE KEY `index_people_on_step_event_id_and_person_key` (`step_event_id`,`person_key`),
   KEY `index_people_on_step_event_id` (`step_event_id`),
   CONSTRAINT `fk_rails_3ae00d3444` FOREIGN KEY (`step_event_id`) REFERENCES `step_events` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `person_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `person_events` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `person_event_class` int(11) NOT NULL COMMENT '承認イベント',
+  `comment` text,
+  `person_id` bigint(20) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_person_events_on_person_id` (`person_id`),
+  KEY `index_person_events_on_person_id_and_person_event_class` (`person_id`,`person_event_class`),
+  CONSTRAINT `fk_rails_23d4081652` FOREIGN KEY (`person_id`) REFERENCES `people` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `schema_migrations`;
@@ -156,13 +156,13 @@ SET character_set_client = utf8;
   `step_status` tinyint NOT NULL
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
-DROP TABLE IF EXISTS `view_latest_events`;
-/*!50001 DROP VIEW IF EXISTS `view_latest_events`*/;
+DROP TABLE IF EXISTS `view_latest_person_events`;
+/*!50001 DROP VIEW IF EXISTS `view_latest_person_events`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `view_latest_events` (
+/*!50001 CREATE TABLE `view_latest_person_events` (
   `id` tinyint NOT NULL,
-  `event_class` tinyint NOT NULL,
+  `person_event_class` tinyint NOT NULL,
   `comment` tinyint NOT NULL,
   `person_id` tinyint NOT NULL,
   `created_at` tinyint NOT NULL,
@@ -191,7 +191,7 @@ SET character_set_client = utf8;
   `step_event_id` tinyint NOT NULL,
   `created_at` tinyint NOT NULL,
   `updated_at` tinyint NOT NULL,
-  `event_class` tinyint NOT NULL,
+  `person_event_class` tinyint NOT NULL,
   `comment` tinyint NOT NULL,
   `none_flag` tinyint NOT NULL,
   `active_flag` tinyint NOT NULL,
@@ -229,8 +229,8 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
-/*!50001 DROP TABLE IF EXISTS `view_latest_events`*/;
-/*!50001 DROP VIEW IF EXISTS `view_latest_events`*/;
+/*!50001 DROP TABLE IF EXISTS `view_latest_person_events`*/;
+/*!50001 DROP VIEW IF EXISTS `view_latest_person_events`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
@@ -239,7 +239,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_latest_events` AS select `e`.`id` AS `id`,`e`.`event_class` AS `event_class`,`e`.`comment` AS `comment`,`e`.`person_id` AS `person_id`,`e`.`created_at` AS `created_at`,`e`.`updated_at` AS `updated_at` from (`latest_events` `le` join `events` `e` on((`le`.`event_id` = `e`.`id`))) */;
+/*!50001 VIEW `view_latest_person_events` AS select `e`.`id` AS `id`,`e`.`person_event_class` AS `person_event_class`,`e`.`comment` AS `comment`,`e`.`person_id` AS `person_id`,`e`.`created_at` AS `created_at`,`e`.`updated_at` AS `updated_at` from (`latest_person_events` `le` join `person_events` `e` on((`le`.`person_event_id` = `e`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -267,7 +267,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_person_statuses` AS select `p`.`id` AS `id`,`p`.`person_key` AS `person_key`,`p`.`step_event_id` AS `step_event_id`,`p`.`created_at` AS `created_at`,`p`.`updated_at` AS `updated_at`,`vle`.`event_class` AS `event_class`,`vle`.`comment` AS `comment`,(isnull(`vle`.`event_class`) or (`vle`.`event_class` = 800)) AS `none_flag`,((`vle`.`event_class` = 100) or (`vle`.`event_class` = 200) or (`vle`.`event_class` = 300) or (`vle`.`event_class` = 900)) AS `active_flag`,((`vle`.`event_class` = 110) or (`vle`.`event_class` = 210) or (`vle`.`event_class` = 240) or (`vle`.`event_class` = 310)) AS `finish_flag`,(`vle`.`event_class` = 220) AS `reject_flag`,((`vle`.`event_class` = 120) or (`vle`.`event_class` = 230)) AS `rejected_flag`,(case when (isnull(`vle`.`event_class`) or (`vle`.`event_class` = 800)) then 'none' when ((`vle`.`event_class` = 100) or (`vle`.`event_class` = 200) or (`vle`.`event_class` = 300) or (`vle`.`event_class` = 900)) then 'active' when ((`vle`.`event_class` = 110) or (`vle`.`event_class` = 210) or (`vle`.`event_class` = 240) or (`vle`.`event_class` = 310)) then 'finish' when (`vle`.`event_class` = 220) then 'none' when ((`vle`.`event_class` = 120) or (`vle`.`event_class` = 230)) then 'active' else 'none' end) AS `person_status` from (`people` `p` left join `view_latest_events` `vle` on((`p`.`id` = `vle`.`person_id`))) */;
+/*!50001 VIEW `view_person_statuses` AS select `p`.`id` AS `id`,`p`.`person_key` AS `person_key`,`p`.`step_event_id` AS `step_event_id`,`p`.`created_at` AS `created_at`,`p`.`updated_at` AS `updated_at`,`vle`.`person_event_class` AS `person_event_class`,`vle`.`comment` AS `comment`,(isnull(`vle`.`person_event_class`) or (`vle`.`person_event_class` = 800)) AS `none_flag`,((`vle`.`person_event_class` = 100) or (`vle`.`person_event_class` = 200) or (`vle`.`person_event_class` = 300) or (`vle`.`person_event_class` = 900)) AS `active_flag`,((`vle`.`person_event_class` = 110) or (`vle`.`person_event_class` = 210) or (`vle`.`person_event_class` = 240) or (`vle`.`person_event_class` = 310)) AS `finish_flag`,(`vle`.`person_event_class` = 220) AS `reject_flag`,((`vle`.`person_event_class` = 120) or (`vle`.`person_event_class` = 230)) AS `rejected_flag`,(case when (isnull(`vle`.`person_event_class`) or (`vle`.`person_event_class` = 800)) then 'none' when ((`vle`.`person_event_class` = 100) or (`vle`.`person_event_class` = 200) or (`vle`.`person_event_class` = 300) or (`vle`.`person_event_class` = 900)) then 'active' when ((`vle`.`person_event_class` = 110) or (`vle`.`person_event_class` = 210) or (`vle`.`person_event_class` = 240) or (`vle`.`person_event_class` = 310)) then 'finish' when (`vle`.`person_event_class` = 220) then 'none' when ((`vle`.`person_event_class` = 120) or (`vle`.`person_event_class` = 230)) then 'active' else 'none' end) AS `person_status` from (`people` `p` left join `view_latest_person_events` `vle` on((`p`.`id` = `vle`.`person_id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

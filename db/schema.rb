@@ -12,14 +12,14 @@
 
 ActiveRecord::Schema.define(version: 20180311125834) do
 
-  create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer "event_class", null: false, comment: "承認イベント"
+  create_table "person_events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "person_event_class", null: false, comment: "承認イベント"
     t.text "comment"
     t.bigint "person_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["person_id", "event_class"], name: "index_events_on_person_id_and_event_class"
-    t.index ["person_id"], name: "index_events_on_person_id"
+    t.index ["person_id", "person_event_class"], name: "index_person_events_on_person_id_and_person_event_class"
+    t.index ["person_id"], name: "index_person_events_on_person_id"
   end
 
   create_table "flows", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -32,14 +32,14 @@ ActiveRecord::Schema.define(version: 20180311125834) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "latest_events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "latest_person_events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.bigint "person_id", null: false
-    t.bigint "event_id", null: false
+    t.bigint "person_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["event_id"], name: "index_latest_events_on_event_id"
-    t.index ["person_id", "event_id"], name: "index_latest_events_on_person_id_and_event_id", unique: true
-    t.index ["person_id"], name: "index_latest_events_on_person_id"
+    t.index ["person_event_id"], name: "index_latest_person_events_on_person_event_id"
+    t.index ["person_id", "person_event_id"], name: "index_latest_person_events_on_person_id_and_person_event_id", unique: true
+    t.index ["person_id"], name: "index_latest_person_events_on_person_id"
   end
 
   create_table "latest_step_events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -80,9 +80,9 @@ ActiveRecord::Schema.define(version: 20180311125834) do
     t.index ["flow_id"], name: "index_steps_on_flow_id"
   end
 
-  add_foreign_key "events", "people", on_delete: :cascade
-  add_foreign_key "latest_events", "events", on_delete: :cascade
-  add_foreign_key "latest_events", "people", on_delete: :cascade
+  add_foreign_key "person_events", "people", on_delete: :cascade
+  add_foreign_key "latest_person_events", "person_events", on_delete: :cascade
+  add_foreign_key "latest_person_events", "people", on_delete: :cascade
   add_foreign_key "latest_step_events", "step_events", on_delete: :cascade
   add_foreign_key "latest_step_events", "steps", on_delete: :cascade
   add_foreign_key "people", "step_events", on_delete: :cascade

@@ -11,7 +11,7 @@ operator:
   and: 10
   or: 20
 
-event_class:
+person_event_class:
   create: 100
   application: 110
   rejected: 120

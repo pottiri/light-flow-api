@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class EventTest < ActiveSupport::TestCase
+class PersonEventTest < ActiveSupport::TestCase
   setup do
     create_test_flow
   end
