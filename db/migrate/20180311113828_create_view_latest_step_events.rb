@@ -3,9 +3,9 @@ class CreateViewLatestStepEvents < ActiveRecord::Migration[5.1]
     execute <<-SQL
       CREATE OR REPLACE VIEW view_latest_step_events AS
       SELECT
-	      sh.*
-      FROM latest_step_events lsh
-	    INNER JOIN step_events sh ON lsh.step_event_id = sh.id
+	      se.*
+      FROM latest_step_events lse
+	    INNER JOIN step_events se ON lse.step_event_id = se.id
     SQL
   end
 end

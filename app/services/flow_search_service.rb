@@ -13,8 +13,8 @@ class FlowSearchService
     unless params[:flow_status].blank?
       query = query.where(flow_status: params[:flow_status])
     end
-    unless params[:step_num].blank?
-      query = query.where(step_num: params[:step_num])
+    unless params[:step_order].blank?
+      query = query.where(step_order: params[:step_order])
     end
     unless params[:person_key].blank? && params[:person_status].blank?
       flows = ViewFlowStatus.arel_table

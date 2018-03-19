@@ -62,7 +62,7 @@ ActiveRecord::Schema.define(version: 20180311125834) do
   end
 
   create_table "step_events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer "operator", null: false, comment: "演算子(10:AND,20:OR)"
+    t.integer "step_operator", null: false, comment: "演算子(10:AND,20:OR)"
     t.bigint "step_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -70,13 +70,13 @@ ActiveRecord::Schema.define(version: 20180311125834) do
   end
 
   create_table "steps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer "step_num", null: false
+    t.integer "step_order", null: false
     t.integer "step_class", null: false, comment: "ステップ区分(10:開始,20:承認,30:配信,90:終了)"
     t.bigint "flow_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["flow_id", "step_class"], name: "index_steps_on_flow_id_and_step_class"
-    t.index ["flow_id", "step_num"], name: "index_steps_on_flow_id_and_step_num", unique: true
+    t.index ["flow_id", "step_order"], name: "index_steps_on_flow_id_and_step_order", unique: true
     t.index ["flow_id"], name: "index_steps_on_flow_id"
   end
 

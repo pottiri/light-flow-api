@@ -46,7 +46,7 @@ class FlowsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test '実行中のステップNoで絞りこめること' do
-    get flows_url + '?' + { 'step_num' => 1 }.to_query, as: :json
+    get flows_url + '?' + { 'step_order' => 1 }.to_query, as: :json
     assert_response :success
     json_response = JSON.parse(response.body)
     assert_equal 1, json_response['count']
@@ -97,13 +97,13 @@ class FlowsControllerTest < ActionDispatch::IntegrationTest
     assert json_response['list'].nil?
   end
 
-  # test "should create flow" do
-  #   assert_difference('Flow.count') do
-  #     post flows_url, params: { flow: { meta: @flow.meta } }, as: :json
-  #   end
+  test 'フローが作成できること' do
+    assert_difference('Flow.count') do
+      post flows_url, params: { flow: { meta: @flow.meta } }, as: :json
+    end
 
-  #   assert_response 201
-  # end
+    assert_response 201
+  end
 
   # test "should show flow" do
   #   get flow_url(@flow), as: :json

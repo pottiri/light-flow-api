@@ -3,9 +3,9 @@ class CreateViewLatestPersonEvents < ActiveRecord::Migration[5.1]
     execute <<-SQL
       CREATE OR REPLACE VIEW view_latest_person_events AS
       SELECT
-	      e.*
-      FROM latest_person_events le
-	    INNER JOIN person_events e ON le.person_event_id = e.id
+	      pe.*
+      FROM latest_person_events lpe
+	    INNER JOIN person_events pe ON lpe.person_event_id = pe.id
     SQL
   end
 end

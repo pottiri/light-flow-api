@@ -1,15 +1,18 @@
-step_num:
-  create: 0
-  archive: 100
 step_class:
   create: 10
   approve: 20
   confirm: 30
   archive: 90
-  
-operator:
+step_order:
+  create: 0
+  archive: 100
+step_operator:
   and: 10
   or: 20
+step_event_class:
+  create: 100
+  update: 200
+  delete: -1
 
 person_event_class:
   create: 100
@@ -23,4 +26,4 @@ person_event_class:
   confirm_request: 300
   confirm: 310
   skip_backward: 800
-  archive: 900 
+  archive: 900
