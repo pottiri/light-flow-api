@@ -8,7 +8,7 @@
 
 # 申請前のフロー
 1.times do |_n|
-  flow = Flow.create(creator_key: 1)
+  flow = Flow.create(flow_name: 'Draft', creator_key: 1)
   step = flow.steps.create(step_class: Settings.step_class.create)
   step_event = step.step_events.create(step_order: Settings.step_order.create, step_name: 'Create', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
   person = step_event.people.create(person_key: 1)
@@ -36,7 +36,7 @@ end
 
 # 一次承認待ちのフロー
 1.times do |_n|
-  flow = Flow.create(creator_key: 1)
+  flow = Flow.create(flow_name: 'Approve(AND)', creator_key: 1)
   step = flow.steps.create(step_class: Settings.step_class.create)
   step_event = step.step_events.create(step_order: Settings.step_order.create, step_name: 'Create', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
   person = step_event.people.create(person_key: 1)
@@ -67,7 +67,7 @@ end
 
 # 二次承認待ち（OR）のフロー
 1.times do |_n|
-  flow = Flow.create(creator_key: 1)
+  flow = Flow.create(flow_name: 'Approve(OR)', creator_key: 1)
   step = flow.steps.create(step_class: Settings.step_class.create)
   step_event = step.step_events.create(step_order: Settings.step_order.create, step_name: 'Create', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
   person = step_event.people.create(person_key: 1)
@@ -102,7 +102,7 @@ end
 
 # 完了したフロー
 1.times do |_n|
-  flow = Flow.create(creator_key: 1)
+  flow = Flow.create(flow_name: 'Archive', creator_key: 1)
   step = flow.steps.create(step_class: Settings.step_class.create)
   step_event = step.step_events.create(step_order: Settings.step_order.create, step_name: 'Create', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
   person = step_event.people.create(person_key: 1)

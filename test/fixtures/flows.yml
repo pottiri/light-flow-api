@@ -1,13 +1,17 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 flow_draft:
-    creator_key: 1
+    creator_key: 1,
+    flow_name: 'Draft'
 
 flow_active_approve_and:
-    creator_key: 1
+    creator_key: 1,
+    flow_name: 'Approve(AND)'
 
 flow_active_approve_or:
-    creator_key: 2
+    creator_key: 2,
+    flow_name: 'Archive(OR)'
 
-flow_finish:
-    creator_key: 2
+flow_archive:
+    creator_key: 2,
+    flow_name: 'Archive'

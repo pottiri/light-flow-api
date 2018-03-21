@@ -9,9 +9,16 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here..
 
-  def create_test_flow
-    # テストデータの作成
-    # 申請前のフロー
+  # テストデータの作成
+  def create_test_flow_all
+    create_test_flow_draft
+    create_test_flow_approve_and
+    create_test_flow_approve_or
+    create_test_flow_archive
+  end
+
+  # 申請前のフロー
+  def create_test_flow_draft
     1.times do |_n|
       flow = flows(:flow_draft)
       step = flow.steps.create(step_class: Settings.step_class.create)
@@ -38,8 +45,10 @@ class ActiveSupport::TestCase
       step_event = step.step_events.create(step_order: Settings.step_order.archive, step_name: 'Archive', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
       step_event.people.create(person_key: 1)
     end
+  end
 
-    # 一次承認待ちのフロー
+  # 一次承認待ちのフロー
+  def create_test_flow_approve_and
     1.times do |_n|
       flow = flows(:flow_active_approve_and)
       step = flow.steps.create(step_class: Settings.step_class.create)
@@ -69,8 +78,10 @@ class ActiveSupport::TestCase
       step_event = step.step_events.create(step_order: Settings.step_order.archive, step_name: 'Archive', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
       step_event.people.create(person_key: flow.creator_key)
     end
+  end
 
-    # 二次承認待ち（OR）のフロー
+  # 二次承認待ち（OR）のフロー
+  def create_test_flow_approve_or
     1.times do |_n|
       flow = flows(:flow_active_approve_or)
       step = flow.steps.create(step_class: Settings.step_class.create)
@@ -104,10 +115,12 @@ class ActiveSupport::TestCase
       step_event = step.step_events.create(step_order: Settings.step_order.archive, step_name: 'Archive', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
       step_event.people.create(person_key: flow.creator_key)
     end
+  end
 
-    # 完了したフロー
+  # 完了したフロー
+  def create_test_flow_archive
     1.times do |_n|
-      flow = flows(:flow_finish)
+      flow = flows(:flow_archive)
       step = flow.steps.create(step_class: Settings.step_class.create)
       step_event = step.step_events.create(step_order: Settings.step_order.create, step_name: 'Create', step_operator: Settings.step_operator.and, step_event_class: Settings.step_event_class.create)
       person = step_event.people.create(person_key: flow.creator_key)

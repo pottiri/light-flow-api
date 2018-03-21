@@ -25,7 +25,8 @@ DROP TABLE IF EXISTS `flows`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `flows` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `creator_key` int(11) DEFAULT NULL,
+  `flow_name` varchar(255) NOT NULL,
+  `creator_key` varchar(255) DEFAULT NULL,
   `meta` json DEFAULT NULL,
   `create_datetime` datetime DEFAULT NULL,
   `application_datetime` datetime DEFAULT NULL,
@@ -111,10 +112,10 @@ DROP TABLE IF EXISTS `step_events`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `step_events` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `step_event_class` int(11) NOT NULL COMMENT 'イベント区分',
   `step_order` int(11) NOT NULL DEFAULT '0' COMMENT '実行順',
   `step_name` varchar(255) NOT NULL COMMENT '名称',
   `step_operator` int(11) NOT NULL COMMENT '演算子(10:AND,20:OR)',
-  `step_event_class` int(11) NOT NULL COMMENT 'イベント区分',
   `step_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -144,6 +145,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `view_flow_statuses` (
   `id` tinyint NOT NULL,
+  `flow_name` tinyint NOT NULL,
   `creator_key` tinyint NOT NULL,
   `meta` tinyint NOT NULL,
   `create_datetime` tinyint NOT NULL,
@@ -177,10 +179,10 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `view_latest_step_events` (
   `id` tinyint NOT NULL,
+  `step_event_class` tinyint NOT NULL,
   `step_order` tinyint NOT NULL,
   `step_name` tinyint NOT NULL,
   `step_operator` tinyint NOT NULL,
-  `step_event_class` tinyint NOT NULL,
   `step_id` tinyint NOT NULL,
   `created_at` tinyint NOT NULL,
   `updated_at` tinyint NOT NULL
@@ -231,7 +233,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_flow_statuses` AS select `f`.`id` AS `id`,`f`.`creator_key` AS `creator_key`,`f`.`meta` AS `meta`,`f`.`create_datetime` AS `create_datetime`,`f`.`application_datetime` AS `application_datetime`,`f`.`archive_datetime` AS `archive_datetime`,`f`.`created_at` AS `created_at`,`f`.`updated_at` AS `updated_at`,(case when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'active')) then 'draft' when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'rejected')) then 'rejected' when (`vss`.`step_class` = 90) then 'archive' else 'active' end) AS `flow_status`,`vss`.`step_name` AS `step_name`,`vss`.`step_order` AS `step_order`,`vss`.`step_class` AS `step_class`,`vss`.`step_status` AS `step_status` from (`flows` `f` join `view_step_statuses` `vss` on(((`f`.`id` = `vss`.`flow_id`) and ((`vss`.`step_status` = 'rejected') or (`vss`.`step_status` = 'active'))))) */;
+/*!50001 VIEW `view_flow_statuses` AS select `f`.`id` AS `id`,`f`.`flow_name` AS `flow_name`,`f`.`creator_key` AS `creator_key`,`f`.`meta` AS `meta`,`f`.`create_datetime` AS `create_datetime`,`f`.`application_datetime` AS `application_datetime`,`f`.`archive_datetime` AS `archive_datetime`,`f`.`created_at` AS `created_at`,`f`.`updated_at` AS `updated_at`,(case when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'active')) then 'draft' when ((`vss`.`step_class` = 10) and (`vss`.`step_status` = 'rejected')) then 'rejected' when (`vss`.`step_class` = 90) then 'archive' else 'active' end) AS `flow_status`,`vss`.`step_name` AS `step_name`,`vss`.`step_order` AS `step_order`,`vss`.`step_class` AS `step_class`,`vss`.`step_status` AS `step_status` from (`flows` `f` join `view_step_statuses` `vss` on(((`f`.`id` = `vss`.`flow_id`) and ((`vss`.`step_status` = 'rejected') or (`vss`.`step_status` = 'active'))))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -259,7 +261,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `view_latest_step_events` AS select `se`.`id` AS `id`,`se`.`step_order` AS `step_order`,`se`.`step_name` AS `step_name`,`se`.`step_operator` AS `step_operator`,`se`.`step_event_class` AS `step_event_class`,`se`.`step_id` AS `step_id`,`se`.`created_at` AS `created_at`,`se`.`updated_at` AS `updated_at` from (`latest_step_events` `lse` join `step_events` `se` on((`lse`.`step_event_id` = `se`.`id`))) */;
+/*!50001 VIEW `view_latest_step_events` AS select `se`.`id` AS `id`,`se`.`step_event_class` AS `step_event_class`,`se`.`step_order` AS `step_order`,`se`.`step_name` AS `step_name`,`se`.`step_operator` AS `step_operator`,`se`.`step_id` AS `step_id`,`se`.`created_at` AS `created_at`,`se`.`updated_at` AS `updated_at` from (`latest_step_events` `lse` join `step_events` `se` on((`lse`.`step_event_id` = `se`.`id`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

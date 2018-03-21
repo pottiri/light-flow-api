@@ -2,7 +2,7 @@ require 'test_helper'
 
 class FlowsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    create_test_flow
+    create_test_flow_all
   end
 
   test '特に条件を指定しなければ全件が返ること' do
@@ -99,21 +99,157 @@ class FlowsControllerTest < ActionDispatch::IntegrationTest
 
   test 'フローが作成できること' do
     assert_difference('Flow.count') do
-      post flows_url, params: { flow: { meta: @flow.meta } }, as: :json
+      post flows_url, params: {
+        flow: {
+          flow_name: 'Test flow',
+          creator_key: 'user_1',
+          step: [
+            {
+              step_order: 1,
+              step_name: 'Approve(AND)',
+              person: [
+                { person_key: 'user_2' }
+              ]
+            }
+          ]
+        }
+      }, as: :json
     end
-
-    assert_response 201
+    assert_response :success
+    json_response = JSON.parse(response.body)
+    assert json_response['message'].blank?
+    assert_equal 0, json_response['errors'].length
+    assert_equal 0, json_response['validation_erros'].length
+    assert json_response['flow'].nil?
+    assert json_response['flow_stetus'].nil?
+    assert json_response['active_step_order'].nil?
+    assert json_response['active_step_name'].nil?
+    assert json_response['flow']['step'][0].nil?
+    assert json_response['flow']['step'][0]['person'][0]['person_key'].nil?
   end
 
-  # test "should show flow" do
-  #   get flow_url(@flow), as: :json
-  #   assert_response :success
-  # end
+  test 'フローの作成時、子要素がない場合エラーになること' do
+    post flows_url, params: {
+      flow: {
+        flow_name: 'Test flow',
+        creator_key: 'user_1'
+      }
+    }, as: :json
+    assert_response :success
+    json_response = JSON.parse(response.body)
+    assert_not_equal 0, json_response['erros'].length
+    assert_not_equal 0, json_response['validation_erros'].length
 
-  # test "should update flow" do
-  #   patch flow_url(@flow), params: { flow: { meta: @flow.meta } }, as: :json
-  #   assert_response 200
-  # end
+    post flows_url, params: {
+      flow: {
+        flow_name: 'Test flow',
+        creator_key: 'user_1',
+        step: [
+          {
+            step_order: 1,
+            step_name: 'Approve(AND)'
+          }
+        ]
+      }
+    }, as: :json
+    assert_response :success
+    json_response = JSON.parse(response.body)
+    assert_not_equal 0, json_response['erros'].length
+    assert_not_equal 0, json_response['validation_erros'].length
+  end
+
+  test 'フローの作成時、必須項目がない場合エラーになること' do
+    post flows_url, params: {
+      flow: {
+        step: [
+          {
+            person: [
+              {}
+            ]
+          }
+        ]
+      }
+    }, as: :json
+    assert_response :success
+    json_response = JSON.parse(response.body)
+    assert_not_equal 0, json_response['erros'].length
+    assert_not_equal 0, json_response['validation_erros'].length
+  end
+
+  test 'フローの詳細が取得できること' do
+    get flow_url(:flow_draft), as: :json
+    json_response = JSON.parse(response.body)
+    assert json_response['flow'].nil?
+    assert json_response['flow_stetus'].nil?
+    assert json_response['active_step_order'].nil?
+    assert json_response['active_step_name'].nil?
+    assert json_response['flow']['step'][0].nil?
+    assert json_response['flow']['step'][0]['person'][0]['person_key'].nil?
+  end
+
+  test 'フローの更新ができること' do
+    patch flow_url(:flow_draft), params: {
+      flow: {
+        flow_name: 'Test flow',
+        creator_key: 'user_1',
+        step: [
+          {
+            step_order: 1,
+            step_name: 'Approve(AND)',
+            person: [
+              { person_key: 'user_2' }
+            ]
+          }
+        ]
+      }
+    }, as: :json
+    assert_response :success
+    json_response = JSON.parse(response.body)
+    assert json_response['message'].blank?
+    assert_equal 0, json_response['errors'].length
+    assert_equal 0, json_response['validation_erros'].length
+    assert json_response['flow'].nil?
+    assert json_response['flow_stetus'].nil?
+    assert json_response['active_step_order'].nil?
+    assert json_response['active_step_name'].nil?
+    assert json_response['flow']['step'][1].nil?
+    assert_equal 'user_2', json_response['flow']['step'][1]['person'][0]['person_key']
+    flow = ViewFlowStatus
+           .includes(view_step_statuses: :view_person_statuses)
+           .where(id: flows(:flow_draft).id).first
+    assert_equal 'user_2', flow.step[1].person[0].person_key
+  end
+
+  test '実行中の場合、更新ができないこと' do
+    patch flow_url(:flow_active_approve_and), params: {
+      flow: {
+        flow_name: 'Test flow',
+        creator_key: 'user_1',
+        step: [
+          {
+            step_order: 1,
+            step_name: 'Approve(AND)',
+            person: [
+              { person_key: 'user_2' }
+            ]
+          }
+        ]
+      }
+    }, as: :json
+    assert_response :success
+    json_response = JSON.parse(response.body)
+    assert_not_equal 0, json_response['erros'].length
+  end
+
+  test 'フローの本体だけの更新ができること' do
+    patch flow_url(:flow_draft), params: {
+      flow: {
+        flow_name: 'Test flow2',
+        creator_key: 'user_2'
+      }
+    }, as: :json
+    assert_response :success
+  end
 
   # test "should destroy flow" do
   #   assert_difference('Flow.count', -1) do
