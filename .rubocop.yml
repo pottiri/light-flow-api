@@ -1,0 +1,10 @@
+Rails:
+  Enabled: true
+
+# Avoid methods longer than 10 lines of code
+MethodLength:
+  Enabled: false
+  
+# Use only ascii symbols in comments.
+AsciiComments:
+  Enabled: false

@@ -1,6 +1,5 @@
 class PersonEvent < ApplicationRecord
   belongs_to :person
-
   after_create :method_after_create
   def method_after_create
     LatestPersonEvent.where(person_id: person_id).destroy_all

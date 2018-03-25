@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # フローの検索処理
 class FlowSearchService
   def initialize; end
@@ -5,15 +7,17 @@ class FlowSearchService
   # 検索
   def search(params)
     rtn = {}
-    rtn[:message] = ''
     query = ViewFlowStatus.where('1 = 1')
-    unless params[:creator_key].blank?
+    if params[:flow_name].present?
+      query = query.where('flow_name like ?', params[:flow_name])
+    end
+    if params[:creator_key].present?
       query = query.where(creator_key: params[:creator_key])
     end
-    unless params[:flow_status].blank?
+    if params[:flow_status].present?
       query = query.where(flow_status: params[:flow_status])
     end
-    unless params[:step_order].blank?
+    if params[:step_order].present?
       query = query.where(step_order: params[:step_order])
     end
     unless params[:person_key].blank? && params[:person_status].blank?
@@ -28,11 +32,13 @@ class FlowSearchService
              .join(people)
              .on(step_events[:id].eq(people[:step_event_id]))
              .where(flows[:id].eq(steps[:flow_id]))
-      unless params[:person_key].blank?
+      if params[:person_key].present?
         condition = condition.where(people[:person_key].eq(params[:person_key]))
       end
-      unless params[:person_status].blank?
-        condition = condition.where(people[:person_status].eq(params[:person_status]))
+      if params[:person_status].present?
+        condition = condition.where(
+          people[:person_status].eq(params[:person_status])
+        )
       end
       query = query.where(condition.exists)
     end
